@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Dashboard - Barb's Shoe Store</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <div id="customerDashboard" class="screen">
+      <h1>Product Catalog</h1>
+      <div id="productCatalog" class="cart_container">
+        <!-- Product catalog will be populated here from JS -->
+      </div>
+      <h2>Cart</h2>
+      <div id="cart" class="cart cart_container">
+        <!-- cart items will be poulated here -->
+      </div>
+      <button id="checkoutBtn">Checkout</button>
+      <button id="logoutBtn">Logout</button>
+    </div>
+
+    <!-- Product Deets Modal -->
+    <div id="detailsModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="detailsTitle">Product Details</h2>
+        <img src="" alt="" id="detailsImage" />
+        <p id="detailsPrice"></p>
+        <p id="detailsStock"></p>
+        <p id="detailsColors"></p>
+      </div>
+    </div>
+    <script type="module" src="./scripts/customerDashboard.js"></script>
+  </body>
+</html>
