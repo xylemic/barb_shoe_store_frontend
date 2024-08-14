@@ -180,6 +180,6 @@ li a:hover {
 input {
   padding: 10px;
   border-radius: 5px;
-  border: none;
+  border: 1px solid #007bff;
   margin: 20px;
 }
