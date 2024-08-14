@@ -41,11 +41,6 @@ label {
   margin-top: 10px;
 }
 
-input {
-  padding: 10px;
-  margin-top: 10px;
-}
-
 button {
   margin-top: 15px;
   background: #007bff;
@@ -184,7 +179,6 @@ li a:hover {
 
 input {
   padding: 10px;
-  outline: none;
   border-radius: 5px;
   border: 0;
   margin: 20px;
