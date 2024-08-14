@@ -110,32 +110,61 @@ const products = [
 ];
 
 
-
 document.addEventListener('DOMContentLoaded', () => {
   const productCatalog = document.getElementById('productCatalog');
   const cart = document.getElementById('cart');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const checkoutBtn = document.getElementById('checkoutBtn');
+  const checkoutBtn = document.getElementById('proceedCheckoutBtn');
+  const continueShoppingBtn = document.getElementById('continueShoppingBtn');
   const detailsModal = document.getElementById('detailsModal');
   const closeModal = document.querySelector('.close');
+  const productSearch = document.getElementById('productSearch');
+
+  const homeTab = document.getElementById('homeTab');
+  const shopTab = document.getElementById('shopTab');
+  const cartTab = document.getElementById('cartTab');
+  const cartQuantity = document.getElementById('cartQuantity');
+  const totalItems = document.getElementById('totalItems');
+  const totalPrice = document.getElementById('totalPrice');
+  const profileTab = document.getElementById('profileTab')
+
+  const homeSection = document.getElementById('homeSection');
+  const shopSection = document.getElementById('shopSection');
+  const cartSection = document.getElementById('cartSection');
+  const profileSection = document.getElementById('profileSection');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const featuredProducts = document.getElementById('featuredCatalog'); // Featured products section
 
   let cartItems = [];
 
-  function displayProducts() {
+  function displaySection(section) {
+    homeSection.style.display = 'none';
+    shopSection.style.display = 'none';
+    cartSection.style.display = 'none';
+    profileSection.style.display = 'none';
+
+    section.style.display = 'block';
+  }
+
+  homeTab.addEventListener('click', () => displaySection(homeSection));
+  shopTab.addEventListener('click', () => displaySection(shopSection));
+  cartTab.addEventListener('click', () => displaySection(cartSection));
+  profileTab.addEventListener('click', () => displaySection(profileSection));
+
+  function displayProducts(filteredProducts = products) {
     productCatalog.innerHTML = '';
-    products.forEach(product => {
+    filteredProducts.forEach(product => {
       if (!product.hidden) {
         const productItem = document.createElement('div');
-        productItem.classList.add('product-item');
+        productItem.classList.add('product_item');
         productItem.setAttribute('draggable', true);
         productItem.dataset.id = product.id;
         productItem.innerHTML = `
           <h3>${product.name}</h3>
-          <img src="${product.image}" alt="${product.name}" class="product-image">
+          <img src="${product.image}" alt="${product.name}" class="product_image">
           <p>Price: ₦${product.price}</p>
           <p>Stock: ${product.stock}</p>
-          <p>Colors: 
-            <select class="color-select" data-id="${product.id}">
+          <p>Colors:
+            <select class="color_select" data-id="${product.id}">
               ${product.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
             </select>
           </p>
@@ -149,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     });
-
+    
     document.querySelectorAll('.view-details-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const productId = parseInt(e.target.dataset.id, 10);
@@ -168,87 +197,118 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function openDetailsModal(product) {
-    detailsModal.style.display = 'block';
-    document.getElementById('detailsTitle').innerText = product.name;
-    document.getElementById('detailsImage').src = product.image;
-    document.getElementById('detailsPrice').innerText = `Price: ₦${product.price}`;
-    document.getElementById('detailsStock').innerText = `Stock: ${product.stock}`;
-    document.getElementById('detailsColors').innerText = `Colors: ${product.colors.join(', ')}`;
-  }
-
-  function closeModalFunc() {
-    detailsModal.style.display = 'none';
-  }
+  productSearch.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
+    displayProducts(filteredProducts);
+  });
 
   function addToCart(productId) {
     const product = products.find(p => p.id === productId);
     if (product) {
-      const selectedColor = document.querySelector(`.color-select[data-id="${product.id}"]`).value;
-      const cartItem = { ...product, selectedColor };
-      cartItems.push(cartItem);
-      displayCart();
+      const cartItemIndex = cartItems.findIndex(item => item.product.id === productId);
+      if (cartItemIndex > -1) {
+        cartItems[cartItemIndex].quantity += 1;
+      } else {
+        cartItems.push({ product, quantity: 1});
+      }
+      updateCart();
     }
   }
 
-  function displayCart() {
+  function updateCart() {
     cart.innerHTML = '';
-    cartItems.forEach((item, index) => {
+    cartItems.forEach(item => {
       const cartItem = document.createElement('div');
-      cartItem.classList.add('cart-item');
+      cartItem.classList.add('cart_item');
       cartItem.innerHTML = `
-        <p>${item.name} - ₦${item.price} - ${item.selectedColor}</p>
-        <button class="remove-from-cart-btn" data-index="${index}">Remove</button>
+        <span>${item.product.name} (x${item.quantity})</span>
+        <span>₦${parseInt(item.product.price.replace(/,/g, ''), 10) * item.quantity}</span>
+        <button class="remove-from-cart-btn" data-id="${item.product.id}">Remove</button>
       `;
       cart.appendChild(cartItem);
     });
 
+    cartQuantity.textContent = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    totalItems.textContent = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    totalPrice.textContent = cartItems.reduce((sum, item) => sum + (parseInt(item.product.price.replace(/,/g, ''), 10) * item.quantity), 0);
+
     document.querySelectorAll('.remove-from-cart-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const itemIndex = parseInt(e.target.dataset.index, 10);
-        cartItems.splice(itemIndex, 1);
-        displayCart();
+        const productId = parseInt(e.target.dataset.id, 10);
+        removeFromCart(productId);
       });
     });
   }
 
-  productCatalog.addEventListener('dragstart', (e) => {
-    if (e.target.classList.contains('product-item')) {
-      e.dataTransfer.setData('text/plain', e.target.dataset.id);
-    }
+  function removeFromCart(productId) {
+    cartItems = cartItems.filter(item => item.product.id !== productId);
+    updateCart();
+  }
+
+  function openDetailsModal(product) {
+    document.getElementById('detailsTitle').textContent = product.name;
+    document.getElementById('detailsImage').src = product.image;
+    document.getElementById('detailsPrice').textContent = `Price: ₦${product.price}`;
+    document.getElementById('detailsStock').textContent = `Stock: ${product.stock}`;
+    document.getElementById('detailsColors').innerHTML = `
+      Colors: 
+      <select class="color-select">
+        ${product.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
+      </select>
+    `;
+    detailsModal.style.display = 'block';
+  }
+
+  closeModal.addEventListener('click', () => {
+    detailsModal.style.display = 'none';
   });
 
-  cart.addEventListener('dragover', (e) => {
+  // Handle drag and drop to cart
+  cartTab.addEventListener('dragover', (e) => {
     e.preventDefault();
   });
 
-  cart.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const productId = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    const product = products.find(p => p.id === productId);
-    if (product) {
-      const selectedColor = document.querySelector(`.color-select[data-id="${product.id}"]`).value;
-      const cartItem = { ...product, selectedColor };
-      cartItems.push(cartItem);
-      displayCart();
-    }
+  cartTab.addEventListener('drop', (e) => {
+    const productId = parseInt(e.dataTransfer.getData('productId'), 10);
+    addToCart(productId);
   });
 
-  closeModal.addEventListener('click', closeModalFunc);
-
-  window.addEventListener('click', (event) => {
-    if (event.target === detailsModal) {
-      closeModalFunc();
-    }
+  continueShoppingBtn.addEventListener('click', () => {
+    displaySection(shopSection);
   });
 
   checkoutBtn.addEventListener('click', () => {
-    alert('Checkout feature not implemented yet.');
+    alert('Proceeding to checkout...');
   });
 
   logoutBtn.addEventListener('click', () => {
     window.location.href = 'index.html';
   });
 
+  // Featured products logic
+  function displayFeaturedProducts() {
+    featuredProducts.innerHTML = '';
+    const featured = products.filter(product => product.featured);
+    featured.forEach(product => {
+      const productItem = document.createElement('div');
+      productItem.classList.add('product_item');
+      productItem.innerHTML = `
+        <h3>${product.name}</h3>
+        <img src="${product.image}" alt="${product.name}" class="product_image">
+        <p>Price: ₦${product.price}</p>
+        <button class="view-details-btn" data-id="${product.id}">View Details</button>
+      `;
+      featuredProducts.appendChild(productItem);
+
+      productItem.querySelector('.view-details-btn').addEventListener('click', (e) => {
+        const productId = parseInt(e.target.dataset.id, 10);
+        openDetailsModal(products.find(p => p.id === productId));
+      });
+    });
+  }
+
+  // Initialize
   displayProducts();
+  displayFeaturedProducts(); // Display featured products on home page
 });

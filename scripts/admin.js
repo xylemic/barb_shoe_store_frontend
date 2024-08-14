@@ -110,166 +110,236 @@ const products = [
   // // Add more products here...
 ];
 
+ document.addEventListener('DOMContentLoaded', () => {
+    const dashboardTab = document.getElementById('dashboardTab');
+    const productsTab = document.getElementById('productsTab');
+    const ordersTab = document.getElementById('ordersTab');
+    
+    const dashboardContent = document.getElementById('dashboardContent');
+    const productsContent = document.getElementById('productsContent');
+    const ordersContent = document.getElementById('ordersContent');
+    const manageProductsContent = document.getElementById('manageProductsContent');
 
+    const addProductBtn = document.getElementById('addProductBtn');
+    const manageProductsBtn = document.getElementById('manageProductsBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const productModal = document.getElementById('productModal');
+    const closeModal = document.querySelector('.close');
+    const saveProductBtn = document.getElementById('saveProductBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const addVariationBtn = document.getElementById('addVariationBtn');
+    
+    let isEdit = false;
+    let editProductId = null;
 
+    function displayProducts() {
+        // populate product list and update the dashboard statistics
+        const productList = document.getElementById('productList');
+        const productTableBody = document.getElementById('productTableBody');
+        productList.innerHTML = '';
+        productTableBody.innerHTML = '';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const productList = document.getElementById('productList');
-  const addProductBtn = document.getElementById('addProductBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const productModal = document.getElementById('productModal');
-  const closeModal = document.querySelector('.close');
-  const saveProductBtn = document.getElementById('saveProductBtn');
+        let totalProducts = 0;
+        let lowStockAlerts = 0;
 
-  let isEdit = false;
-  let editProductId = null;
+        products.forEach(product => {
+            if (!product.hidden) {
+                totalProducts++;
+                if (product.stock < 10) {
+                    lowStockAlerts++;
+                }
 
-  function displayProducts() {
-    productList.innerHTML = '';
-    products.forEach(product => {
-      if (!product.hidden) {
-        const productItem = document.createElement('div');
-        productItem.classList.add('product-item');
-        productItem.innerHTML = `
-        <h3>${product.name}</h3>
-        <img src="${product.image}" alt="${product.name}" class="product-image">
-        <p>Price: ₦${product.price}</p>
-        <p>Stock: ${product.stock}</p>
-        <p>Colors: ${product.colors.join(', ')}</p>
-        <button class="edit-product-btn" data-id="${product.id}">Edit Product</button>
-         <button class="hide-product-btn" data-id="${product.id}">${product.hidden ? 'Show' : 'Hide'} Product</button>
-        <button class="delete-product-btn" data-id="${product.id}">Delete Product</button>
-        `;
-        productList.appendChild(productItem);
-      }
-    });
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item');
+                productItem.innerHTML = `
+                <h3>${product.name}</h3>
+                <img src="${product.image}" alt="${product.name}" class="product-image">
+                <p>Price: ₦${product.price}</p>
+                <p>Stock: ${product.stock}</p>
+                <p>Colors: ${product.colors.join(', ')}</p>
+                <button class="edit-product-btn" data-id="${product.id}">Edit Product</button>
+                <button class="hide-product-btn" data-id="${product.id}">${product.hidden ? 'Show' : 'Hide'} Product</button>
+                <button class="delete-product-btn" data-id="${product.id}">Delete Product</button>
+                `;
+                productList.appendChild(productItem);
+            }
 
-    document.querySelectorAll('.edit-product-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const productId = parseInt(e.target.dataset.id, 10);
-        const product = products.find(p => p.id === productId);
-        if (product) {
-          isEdit = true;
-          editProductId = productId;
-          openModal(product);
-        }
-      });
-    });
+            const productRow = document.createElement('tr');
+            productRow.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.stock}</td>
+            <td>
+                <button class="edit-product-btn" data-id="${product.id}">Edit</button>
+                <button class="hide-product-btn" data-id="${product.id}">${product.hidden ? 'Show' : 'Hide'}</button>
+                <button class="delete-product-btn" data-id="${product.id}">Delete</button>
+            </td>
+            `;
+            productTableBody.appendChild(productRow);
+        });
 
-    document.querySelectorAll('.hide-product-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const productId = parseInt(e.target.dataset.id, 10);
-        const product = products.find(p => p.id === productId);
-        if (product) {
-          product.hidden = !product.hidden;
-          displayProducts();
-        }
-      });
-    });
+        // Save stats to localStorage
+        localStorage.setItem('totalProducts', totalProducts);
+        localStorage.setItem('lowStockAlerts', lowStockAlerts);
+
+        // Update UI from localStorage
+        document.getElementById('totalProducts').innerText = localStorage.getItem('totalProducts');
+        document.getElementById('lowStockAlerts').innerText = localStorage.getItem('lowStockAlerts');
+        document.getElementById('ordersToday').innerText = localStorage.getItem('ordersToday') || Math.floor(Math.random() * 20); 
+
+        // Add event listeners for Edit, Hide/Show, and Delete buttons
+        addProductEventListeners();
+    }
 
     function openModal(product = null) {
-      productModal.style.display = 'block';
-      if (product) {
-        document.getElementById('modalTitle').innerText = 'Edit Product';
-        document.getElementById('productName').value = product.name;
-        document.getElementById('productPrice').value = product.price;
-        document.getElementById('productStock').value = product.stock;
-        document.getElementById('productColors').value = product.colors.join(', ');
-      } else {
-        document.getElementById('modalTitle').innerText = 'Add New Product';
-        document.getElementById('productName').value = '';
-        document.getElementById('productPrice').value = '';
-        document.getElementById('productStock').value = '';
-        document.getElementById('productColors').value = '';
-      }
-    }
-
-    function closeModalFunc() {
-      productModal.style.display = 'none';
-      isEdit = false;
-      editProductId = null;
-    }
-
-    addProductBtn.addEventListener('click', () => {
-      openModal();
-    });
-
-    closeModal.addEventListener('click', closeModalFunc);
-
-    window.addEventListener('click', (event) => {
-      if (event.target === productModal) {
-        closeModalFunc();
-      }
-    });
-
-    saveProductBtn.addEventListener('click', () => {
-      const name = document.getElementById('productName').value;
-      const price = parseFloat(document.getElementById('productPrice').value);
-      const stock = parseInt(document.getElementById('productStock').value, 10);
-      const colors = document.getElementById('productColors').value.split(',').map(c => c.trim());
-
-      if (isEdit && editProductId !== null) {
-        const product = products.find(p => p.id === editProductId);
+        productModal.style.display = 'block';
         if (product) {
-          product.name = name;
-          product.price = price;
-          product.stock = stock;
-          product.colors = colors;
+            isEdit = true;
+            editProductId = product.id;
+            document.getElementById('modalTitle').innerText = 'Edit Product';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productVisibility').value = product.hidden ? 'hidden' : 'visible';
+            document.getElementById('productColors').value = product.colors.join(', ');
+        } else {
+            isEdit = false;
+            editProductId = null;
+            document.getElementById('modalTitle').innerText = 'Add New Product';
+            document.getElementById('productName').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productStock').value = '';
+            document.getElementById('productVisibility').value = 'visible';
+            document.getElementById('productColors').value = '';
         }
-      } else {
-        const newProduct = {
-          id: products.length,
-          name,
-          price,
-          stock,
-          colors,
-          hidden: false,
-          image: 'placeholder.jpg'
-        };
-        products.push(newProduct);
-      }
+    }
 
-      closeModalFunc();
-      displayProducts();
+    function closeModalFn() {
+        productModal.style.display = 'none';
+    }
+
+    function saveProduct() {
+        const name = document.getElementById('productName').value;
+        const description = document.getElementById('productDescription').value;
+        const price = parseFloat(document.getElementById('productPrice').value);
+        const stock = parseInt(document.getElementById('productStock').value);
+        const visibility = document.getElementById('productVisibility').value === 'visible';
+        const colors = document.getElementById('productColors').value.split(',').map(c => c.trim());
+        
+        if (isEdit) {
+            const product = products.find(p => p.id === editProductId);
+            if (product) {
+                product.name = name;
+                product.description = description;
+                product.price = price;
+                product.stock = stock;
+                product.hidden = !visibility;
+                product.colors = colors;
+            }
+        } else {
+            const newProduct = {
+                id: products.length + 1,
+                name,
+                description,
+                price,
+                stock,
+                hidden: !visibility,
+                colors
+            };
+            products.push(newProduct);
+        }
+        
+        displayProducts();
+        closeModalFn();
+    }
+
+    function addProductEventListeners() {
+        const editButtons = document.querySelectorAll('.edit-product-btn');
+        const hideButtons = document.querySelectorAll('.hide-product-btn');
+        const deleteButtons = document.querySelectorAll('.delete-product-btn');
+
+        editButtons.forEach(button => button.addEventListener('click', (e) => {
+            const productId = parseInt(e.target.dataset.id);
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                openModal(product);
+            }
+        }));
+
+        hideButtons.forEach(button => button.addEventListener('click', (e) => {
+            const productId = parseInt(e.target.dataset.id);
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.hidden = !product.hidden;
+                displayProducts();
+            }
+        }));
+
+        deleteButtons.forEach(button => button.addEventListener('click', (e) => {
+            const productId = parseInt(e.target.dataset.id);
+            const productIndex = products.findIndex(p => p.id === productId);
+            if (productIndex !== -1) {
+                products.splice(productIndex, 1);
+                displayProducts();
+            }
+        }));
+    }
+
+    // event listeners for tabs
+    dashboardTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        dashboardContent.style.display = 'block';
+        productsContent.style.display = 'none';
+        ordersContent.style.display = 'none';
+        manageProductsContent.style.display = 'none';
     });
 
-    document.querySelectorAll('.delete-product-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const productId = parseInt(e.target.dataset.id, 10);
-        const productIndex = products.findIndex(p => p.id === productId);
-        if (productIndex > -1) {
-          products.splice(productIndex, 1);
-          displayProducts();
-        }
-      });
+    productsTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        dashboardContent.style.display = 'none';
+        productsContent.style.display = 'block';
+        ordersContent.style.display = 'none';
+        manageProductsContent.style.display = 'none';
+        displayProducts();
     });
-  }
 
-  // addProductBtn.addEventListener('click', () => {
-  //   console.log('add product button clicked!');
-  //   const name = prompt('Enter product name:');
-  //   const price = parseFloat(prompt('Enter product price:'));
-  //   const stock = parseInt(prompt('Enter product stock:'), 10);
-  //   const colors = prompt('Enter product colors (comma separated):').split(',').map(c => c.trim());
+    ordersTab.addEventListener('click', (e) => {
+        e.preventDefault();
+        dashboardContent.style.display = 'none';
+        productsContent.style.display = 'none';
+        ordersContent.style.display = 'block';
+        manageProductsContent.style.display = 'none';
+    });
 
-  //   const newProduct = {
-  //     id: products.length ? products[products.length - 1].id + 1 : 1,
-  //     name,
-  //     price,
-  //     stock,
-  //     colors,
-  //     hidden: false,
-  //     image: 'placeholder.jpg'
-  //   };
+    manageProductsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dashboardContent.style.display = 'none';
+        productsContent.style.display = 'none';
+        ordersContent.style.display = 'none';
+        manageProductsContent.style.display = 'block';
+    });
 
-  //   products.push(newProduct);
-  //   displayProducts();
-  // });
+   addProductBtn.addEventListener('click', () => {
+        openModal();
+    });
 
-  logoutBtn.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
+   closeModal.addEventListener('click', closeModalFn);
+    cancelBtn.addEventListener('click', closeModalFn);
+    saveProductBtn.addEventListener('click', saveProduct);
+    addVariationBtn.addEventListener('click', () => {
+        // functionality for adding variations
+    });
 
-  displayProducts();
+    // Display the default tab
+    dashboardTab.click();
+
+    // Logout function
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('isAdmin');
+        window.location.href = '../index.html';
+    });
+
+    displayProducts();
 });
-

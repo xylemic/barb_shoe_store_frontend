@@ -5,15 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Barb's Shoe Store</title>
     <link rel="stylesheet" href="./styles/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
     <div id="adminDashboard" class="screen">
       <h1>Admin Dashboard</h1>
-      <div>
-        <button id="addProductBtn">Add New Product</button>
+
+      <!-- Tabs for Dashboard, Products, and Orders -->
+      <nav>
+        <ul>
+          <li><a href="#dashboard" id="dashboardTab">Dashboard</a></li>
+          <li><a href="#products" id="productsTab">Products</a></li>
+          <li><a href="#orders" id="ordersTab">Orders</a></li>
+        </ul>
+      </nav>
+
+      <!-- Dashboard Content -->
+      <div id="dashboardContent" class="tabContent">
+        <h2>Dashboard Overview</h2>
+        <p>Total Products: <span id="totalProducts"></span></p>
+        <p>Low Stock Alerts: <span id="lowStockAlerts"></span></p>
+        <p>Orders Today: <span id="ordersToday"></span></p>
       </div>
-      <div id="productList">
-        <!-- Product list will be populated here from Js -->
+
+      <!-- Products Content -->
+      <div id="productsContent" class="tabContent">
+        <div>
+          <button id="addProductBtn">Add New Product</button>
+          <button id="manageProductsBtn">Manage Products</button>
+        </div>
+
+        <div id="productList">
+          <!-- Product list will be populated here from JS -->
+        </div>
+      </div>
+
+      <!-- Orders Content -->
+      <div id="ordersContent" class="tabContent">
+        <h2>Orders Management</h2>
+        <!-- Orders will be managed here -->
       </div>
 
       <!-- Add/Edit Product Modal -->
@@ -23,16 +56,59 @@
           <h2 id="modalTitle">Add/Edit Product</h2>
           <label for="productName">Name:</label>
           <input type="text" id="productName" />
+
+          <label for="productDescription">Description:</label>
+          <textarea id="productDescription"></textarea>
+
           <label for="productPrice">Price:</label>
           <input type="number" id="productPrice" />
+
           <label for="productStock">Stock:</label>
           <input type="number" id="productStock" />
-          <label for="productColors">Colors (comma separated):</label>
-          <input type="text" id="productColors" />
+
+          <label for="productVisibility">Visibility:</label>
+          <select id="productVisibility">
+            <option value="visible">Visible</option>
+            <option value="hidden">Hidden</option>
+          </select>
+
+          <!-- Variations (Size, Color, Stock) -->
+          <div id="productVariations">
+            <label>Variations:</label>
+            <div id="variationList"></div>
+            <button id="addVariationBtn">Add Variation</button>
+          </div>
+
           <button id="saveProductBtn">Save</button>
+          <button id="cancelBtn">Cancel</button>
         </div>
       </div>
-      <button id="logoutBtn">Logout</button>
+
+      <!-- Manage Products Section -->
+      <div id="manageProductsContent" class="tabContent">
+        <input type="text" id="searchBar" placeholder="Search products..." />
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody">
+            <!-- Products table rows will be populated here from JS -->
+          </tbody>
+        </table>
+        <div id="paginationControls">
+          <button id="prevPageBtn">Previous</button>
+          <button id="nextPageBtn">Next</button>
+        </div>
+      </div>
+
+      <button id="logoutBtn">
+        Logout <i class="fa fa-sign-out" style="font-size: 20px"></i>
+      </button>
     </div>
     <script type="module" src="./scripts/admin.js"></script>
   </body>

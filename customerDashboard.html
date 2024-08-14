@@ -4,33 +4,97 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Customer Dashboard - Barb's Shoe Store</title>
-    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/customerDashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
-    <div id="customerDashboard" class="screen">
-      <h1>Product Catalog</h1>
-      <div id="productCatalog" class="cart_container">
-        <!-- Product catalog will be populated here from JS -->
-      </div>
-      <h2>Cart</h2>
-      <div id="cart" class="cart cart_container">
-        <!-- cart items will be poulated here -->
-      </div>
-      <button id="checkoutBtn">Checkout</button>
-      <button id="logoutBtn">Logout</button>
-    </div>
+    <!-- nav menu -->
+    <nav>
+      <ul>
+        <li>
+          <a href="#" id="homeTab"
+            ><i class="fa fa-home" style="font-size: 20px"></i> Home</a
+          >
+        </li>
+        <li>
+          <a href="#" id="shopTab"
+            ><i class="fa fa-shopping-bag" style="font-size: 20px"></i> Shop</a
+          >
+        </li>
+        <li>
+          <a href="#" id="cartTab"
+            >Cart <i class="fa fa-shopping-cart" style="font-size: 20px"></i>
+            <span id="cartQuantity">0</span></a
+          >
+        </li>
+        <li>
+          <a href="#" id="profileTab"
+            ><i class="fa fa-user-o" style="font-size: 20px"></i> Profile</a
+          >
+        </li>
+      </ul>
+    </nav>
 
-    <!-- Product Deets Modal -->
-    <div id="detailsModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="detailsTitle">Product Details</h2>
-        <img src="" alt="" id="detailsImage" />
-        <p id="detailsPrice"></p>
-        <p id="detailsStock"></p>
-        <p id="detailsColors"></p>
+    <main>
+      <!-- home screen -->
+      <div id="homeSection" class="screen">
+        <h1>Welcome to Barb's Shoe Store</h1>
+        <p>Explore our exclusive collection of shoes for all occasions.</p>
+        <div id="featuredProducts">
+          <h2>Featured Products</h2>
+          <div id="featuredCatalog"></div>
+        </div>
       </div>
-    </div>
+
+      <!-- shop section -->
+      <div id="shopSection" class="screen">
+        <h1>Product Catalog</h1>
+        <input
+          type="text"
+          id="productSearch"
+          placeholder="Search for products..."
+          spellchecker="false"
+        />
+        <div id="productCatalog" class="cart_container"></div>
+      </div>
+
+      <!-- cart section -->
+      <div id="cartSection" class="screen">
+        <h2>Your Cart</h2>
+        <div id="cart" class="cart_container"></div>
+        <h3>Order Summary</h3>
+        <p>Total Items: <span id="totalItems">0</span></p>
+        <p>Total Price: ₦<span id="totalPrice">0</span></p>
+        <button id="proceedCheckoutBtn">Proceed to Checkout</button>
+        <button id="continueShoppingBtn">Continue Shopping</button>
+      </div>
+
+      <!-- profile section -->
+      <div id="profileSection" class="screen" style="display: none">
+        <h2>Profile</h2>
+        <p>Username: customer</p>
+        <p>Email: customer@example.com</p>
+        <p>Order History: <a href="#">View Orders</a></p>
+      </div>
+
+      <!-- product deets modal -->
+      <div id="detailsModal" class="modal">
+        <div class="modal_content">
+          <span class="close">&times;</span>
+          <h2 id="detailsTitle">Product Details</h2>
+          <img src="" alt="" id="detailsImage" />
+          <p id="detailsPrice"></p>
+          <p id="detailsStock"></p>
+          <p id="detailsColors"></p>
+        </div>
+      </div>
+      <button id="logoutBtn">
+        Logout <i class="fa fa-sign-out" style="font-size: 20px"></i>
+      </button>
+    </main>
     <script type="module" src="./scripts/customerDashboard.js"></script>
   </body>
 </html>
